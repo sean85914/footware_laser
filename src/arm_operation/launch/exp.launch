@@ -1,0 +1,6 @@
+<launch>
+  <!-- Convert pixel array to waypoiny array -->
+  <node pkg="visual" type="pixel_to_waypoint" name="pixel_to_waypoint" output="screen"/>
+  <!-- Robot arm follow the waypoiny -->
+  <node pkg="arm_operation" type="shoe_edge_tracker" name="shoe_edge_tracker" output="screen"/>
+</launch>
