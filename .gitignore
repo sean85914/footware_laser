@@ -1,4 +1,5 @@
 build/
 devel/
+bag/
 *.swp
 *.pyc
