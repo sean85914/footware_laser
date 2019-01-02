@@ -205,3 +205,7 @@ include_directories(
 add_executable(get_point_from_user src/get_point_from_user.cpp)
 add_dependencies(get_point_from_user ${catkin_EXPORTED_TARGETS})
 target_link_libraries(get_point_from_user ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+
+add_executable(pixel_to_waypoint src/pixel_to_waypoint.cpp)
+add_dependencies(pixel_to_waypoint ${catkin_EXPORTED_TARGETS})
+target_link_libraries(pixel_to_waypoint ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})

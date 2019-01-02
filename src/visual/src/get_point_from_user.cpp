@@ -1,5 +1,5 @@
 #include <ros/ros.h>
-#include <tf/transform_broadcaster.h>
+#include <tf/transform_listener.h>
 // Message filters
 #include <message_filters/subscriber.h>
 #include <message_filters/synchronizer.h>
@@ -28,17 +28,22 @@ ros::Publisher pub_marker;
 visualization_msgs::Marker marker;
 int ts; // time stamp for start time
 #endif
-
+// Rotation matrix and translation vector from [base_link] to [camera_rgb_optical_frame]
+// If offline testing, use the transform from our standby pose
+// Else use lookup transform to get the transform
+#define OFFLINE 0
+#ifdef OFFLINE
+const tf::Matrix3x3 rot_mat = tf::Matrix3x3(-0.99964, -0.02614, -0.00602,
+                                            -0.02050,  0.88928, -0.45690,
+                                             0.01730, -0.45661, -0.88950);
+const tf::Vector3 trans = tf::Vector3(0.036, -0.671, 0.567);
+#endif
 // Subscribed topics string
 const std::string IMAGE_STR = "/camera/rgb/image_raw";
 const std::string CLOUD_STR = "/camera/depth_registered/points";
 const std::string CV_WINDOW_NAME = "Test";
 const int EPSILON = 7; // Should be odd number
-// Rotation matrix and translation vector from [base_link] to [camera_rgb_optical_frame]
-const tf::Matrix3x3 rot_mat = tf::Matrix3x3(-0.99964, -0.02614, -0.00602,
-                                            -0.02050,  0.88928, -0.45690,
-                                             0.01730, -0.45661, -0.88950);
-const tf::Vector3 trans = tf::Vector3(0.036, -0.671, 0.567);
+
 // Click x and y coordinate in image plane
 int click_pixel_x, click_pixel_y;
 // Mouse event callback
@@ -101,12 +106,35 @@ void cb(const sensor_msgs::ImageConstPtr& image, const sensor_msgs::PointCloud2C
       std::cout << "Click on pixel: (" << click_pixel_x << ", " << click_pixel_y << ")" << std::endl;
       std::cout << "Coordinate w.r.t. [" << in->header.frame_id << "]: (" <<
                    click_x << " " << click_y << " " << click_z << " )" << std::endl;
-      tf::Vector3 vec = tf::Vector3(click_x, click_y, click_z),
-                  vec_rot = rot_mat*vec,
-                  vec_tf = vec_rot + trans;
-      std::cout << "Coordinate w.r.t. [base_link]: (" << vec_tf.x() << ", " 
-                                                      << vec_tf.y() << ", " 
-                                                      << vec_tf.z() << ")" << std::endl;
+      double click_x_tf, click_y_tf, click_z_tf;
+      if(OFFLINE){
+        tf::Vector3 vec = tf::Vector3(click_x, click_y, click_z),
+                    vec_rot = rot_mat*vec,
+                    vec_tf = vec_rot + trans;
+        click_x_tf = vec_tf.x(); click_y_tf = vec_tf.y(); click_z_tf = vec_tf.z();
+      }
+      if(!OFFLINE){
+        static tf::TransformListener listener;
+        tf::StampedTransform transform;
+        try {
+          listener.waitForTransform("base_link", in->header.frame_id, ros::Time(0), 
+                                    ros::Duration(3.0));
+          listener.lookupTransform("base_link", in->header.frame_id, ros::Time(0), transform);
+          tf::Matrix3x3 rot_mat = tf::Matrix3x3(transform.getRotation());
+          tf::Vector3 trans = tf::Vector3(transform.getOrigin()),
+                        vec = tf::Vector3(click_x, click_y, click_z),
+                    vec_rot = rot_mat*vec,
+                     vec_tf = vec_rot + trans;
+          click_x_tf = vec_tf.x(); click_y_tf = vec_tf.y(); click_z_tf = vec_tf.z();
+        }
+        catch(tf::TransformException ex){
+          ROS_ERROR("%s", ex.what());
+          click_x_tf = click_y_tf = click_z_tf = 0;
+        }
+      }
+      std::cout << "Coordinate w.r.t. [base_link]: (" << click_x_tf << ", " 
+                                                      << click_y_tf << ", " 
+                                                      << click_z_tf << ")" << std::endl;
       if(DEBUG){
         marker.pose.position.x = click_x; 
         marker.pose.position.y = click_y; 
