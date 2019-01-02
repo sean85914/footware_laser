@@ -50,19 +50,6 @@ int main(int argc, char** argv)
          y_t = atof(argv[2]),
          z_t = atof(argv[3]);
   get_target_orientation(x_t, y_t, z_t, target); // First wp
-  ROS_INFO("Go to first waypoint");
   goto_pose_client.call(target);
-  /*ros::Duration(1.5).sleep();
-  get_target_orientation(x_t, y_t-sideLength, z_t, target); // Second wp
-  ROS_INFO("Go to second waypoint");
-  goto_pose_client.call(target);
-  ros::Duration(1.5).sleep();
-  get_target_orientation(x_t-sideLength, y_t-sideLength, z_t, target); // Third wp
-  ROS_INFO("Go to third waypoint");
-  goto_pose_client.call(target);
-  ros::Duration(1.5).sleep();
-  get_target_orientation(x_t-sideLength, y_t, z_t, target); // Fourth wp
-  ROS_INFO("Go to fourth waypoint");
-  goto_pose_client.call(target);*/
   return 0;
 }

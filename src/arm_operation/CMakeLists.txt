@@ -237,3 +237,7 @@ target_link_libraries(aim_to_target ${catkin_LIBRARIES})
 add_executable(aim_to_circle src/aim_to_circle.cpp)
 add_dependencies(aim_to_circle ${catkin_EXPORTED_TARGETS} arm_operation_gencpp)
 target_link_libraries(aim_to_circle ${catkin_LIBRARIES})
+
+add_executable(shoe_edge_tracker src/shoe_edge_tracker.cpp)
+add_dependencies(shoe_edge_tracker ${catkin_EXPORTED_TARGETS} arm_operation_gencpp)
+target_link_libraries(shoe_edge_tracker ${catkin_LIBRARIES})
