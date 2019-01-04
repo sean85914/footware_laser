@@ -5,8 +5,9 @@ Pixel2Waypoint::Pixel2Waypoint()
   pub = nh_.advertise<geometry_msgs::PoseArray>(PUB_STR, 1);
   sub = nh_.subscribe(SUB_STR, 1, &Pixel2Waypoint::cb, this);
   getTransform();
-  if(has_tf) ROS_INFO("Get transformation from [%s] to [%s]", CAMERA_STR.c_str(), BASE_STR.c_str());
-  else ROS_ERROR("Fail to get transformation from [%s] to [%s]", CAMERA_STR.c_str(), BASE_STR.c_str());
+  if(has_tf) ROS_INFO("Get transformation from [%s] to [%s]", BASE_STR.c_str(), CAMERA_STR.c_str());
+  else ROS_ERROR("Fail to get transformation from [%s] to [%s]", \
+                 BASE_STR.c_str(), CAMERA_STR.c_str());
 }
 
 void Pixel2Waypoint::getTransform(void)
