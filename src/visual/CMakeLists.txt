@@ -107,7 +107,7 @@ find_package(OpenCV REQUIRED)
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
  INCLUDE_DIRS include
-#  LIBRARIES visual
+ LIBRARIES visual
  CATKIN_DEPENDS cv_bridge pcl_conversions pcl_ros roscpp sensor_msgs
 #  DEPENDS system_lib
 )
@@ -119,7 +119,7 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  include
   ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
 )
@@ -128,6 +128,11 @@ include_directories(
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/visual.cpp
 # )
+
+add_library(pixel_to_waypoint
+            src/pixel_to_waypoint.cpp)
+add_dependencies(pixel_to_waypoint ${catkin_EXPORTED_TARGETS} ${pixel_to_waypoint_EXPORTED_TARGET})
+target_link_libraries(pixel_to_waypoint ${catkin_LIBRARIES})
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -206,6 +211,8 @@ add_executable(get_point_from_user src/get_point_from_user.cpp)
 add_dependencies(get_point_from_user ${catkin_EXPORTED_TARGETS})
 target_link_libraries(get_point_from_user ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
 
-add_executable(pixel_to_waypoint src/pixel_to_waypoint.cpp)
-add_dependencies(pixel_to_waypoint ${catkin_EXPORTED_TARGETS})
-target_link_libraries(pixel_to_waypoint ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+add_executable(pixel_to_waypoint_node 
+       src/pixel_to_waypoint_node.cpp)
+add_dependencies(pixel_to_waypoint_node ${catkin_EXPORTED_TARGETS})
+target_link_libraries(pixel_to_waypoint_node 
+           ${OpenCV_LIBRARIES} ${catkin_LIBRARIES} pixel_to_waypoint)
